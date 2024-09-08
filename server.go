@@ -47,16 +47,15 @@ func handleConnection(conn net.Conn) {
 			return
 		}
 		var req Request
-		err := json.Unmarshal(request, &req)
+		err = json.Unmarshal([]byte(request), &req)
 		if err != nil{
 			fmt.Print(err)
 		}
+		fmt.Print("> ", req)
 		if req.req_type == "cmd" {
 		// Print the data read from the connection to the terminal
-			fmt.Print("> ", string(pattern))
-
 		// Write back the same message to the client.
-			data, _ := utils.Grep(pattern, "sample.txt")
+			data, _ := utils.Grep(req.data, "sample.txt")
 			fmt.Print("Sending data to client: ", strings.Join(data, ""))
 			utils.ReturnOutput(conn.RemoteAddr().(*net.TCPAddr).IP.String(), strings.Join(data, "\n"))
 		}
