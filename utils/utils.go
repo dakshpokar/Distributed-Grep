@@ -1,0 +1,45 @@
+package utils
+
+// Write a function that greps a file for a given pattern.
+// The function should return the lines that match the pattern.
+
+import (
+	"bufio"
+	"fmt"
+	"os/exec"
+)
+
+func Grep(pattern, filename string) ([]string, error) {
+	cmd := exec.Command("grep", pattern, filename)
+
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return nil, fmt.Errorf("Error creating StdoutPipe: %w", err)
+	}
+
+	err = cmd.Start()
+	if err != nil {
+		return nil, fmt.Errorf("Error starting command: %w", err)
+	}
+
+	var lines []string
+	scanner := bufio.NewScanner(stdout)
+	for scanner.Scan() {
+		line := scanner.Text()
+		lines = append(lines, line)
+	}
+
+	err = cmd.Wait()
+	if err != nil {
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			// grep returns exit status 1 if no lines were matched
+			if exitErr.ExitCode() != 1 {
+				return nil, fmt.Errorf("Command finished with error: %w", err)
+			}
+		} else {
+			return nil, fmt.Errorf("Error waiting for command: %w", err)
+		}
+	}
+
+	return lines, nil
+}
