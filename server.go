@@ -47,6 +47,6 @@ func handleConnection(conn net.Conn) {
 		// Write back the same message to the client.
 		data, _ := utils.Grep(pattern, "sample.txt")
 		fmt.Print("Sending data to client: ", strings.Join(data, ""))
-		utils.ReturnOutput(conn.RemoteAddr().(*net.TCPAddr).IP.String(), strings.Join(data, ""))
+		utils.ReturnOutput(conn.RemoteAddr().(*net.TCPAddr).IP.String(), strings.Join(data, "\n"))
 	}
 }

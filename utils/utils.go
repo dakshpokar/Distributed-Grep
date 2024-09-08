@@ -71,4 +71,5 @@ func ReturnOutput(ip string, data string) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	conn.Write([]byte("\r"))
 }
