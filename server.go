@@ -32,18 +32,21 @@ func main() {
 }
 
 func handleConnection(conn net.Conn) {
-	pattern, err := bufio.NewReader(conn).ReadString('\n')
-	if err != nil {
-		fmt.Println(err)
-		return
+	defer conn.Close()
+	fmt.Println("Accepted connection from", conn.RemoteAddr())
+	for {
+		pattern, err := bufio.NewReader(conn).ReadString('\n')
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		// Print the data read from the connection to the terminal
+		fmt.Print("> ", string(pattern))
+
+		// Write back the same message to the client.
+		data, _ := utils.Grep(pattern, "sample.txt")
+		fmt.Print("Sending data to client: ", strings.Join(data, ""))
+		utils.ReturnOutput(conn.RemoteAddr().(*net.TCPAddr).IP.String(), strings.Join(data, ""))
 	}
-
-	// Print the data read from the connection to the terminal
-	fmt.Print("> ", string(pattern))
-
-	// Write back the same message to the client.
-	data, _ := utils.Grep(pattern, "sample.txt")
-	fmt.Print("Sending data to client: ", strings.Join(data, ""))
-	utils.ReturnOutput(conn.RemoteAddr().(*net.TCPAddr).IP.String(), strings.Join(data, ""))
-	conn.Close()
 }

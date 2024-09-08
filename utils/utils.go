@@ -47,6 +47,7 @@ func Grep(pattern, filename string) ([]string, error) {
 }
 
 func ReturnOutput(ip string, data string) {
+
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", ip+":1200")
 
 	if err != nil {

@@ -2,12 +2,20 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	tcpAddr, err := net.ResolveTCPAddr("tcp4", "10.194.238.123:1200")
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("Error loading .env file")
+	}
+
+	tcpAddr, err := net.ResolveTCPAddr("tcp4", os.Getenv("REMOTE_IP")+":1200")
 
 	if err != nil {
 		fmt.Println(err)
