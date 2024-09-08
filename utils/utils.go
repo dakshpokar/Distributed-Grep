@@ -12,7 +12,7 @@ import (
 )
 
 func Grep(pattern, filename string) ([]string, error) {
-	cmd := exec.Command("grep", pattern, filename)
+	cmd := exec.Command("grep", pattern, filename, "-rn")
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
