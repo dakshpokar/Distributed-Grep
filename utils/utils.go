@@ -65,7 +65,10 @@ func ReturnOutput(ip string, data string) {
 	}
 
 	// Send a message to the server
-	_, err = conn.Write([]byte(data + "\n"))
+	_, err = conn.Write([]byte(`{
+		"req_type": "op",
+		"data" : ` + data + `
+	}` + "\r"))
 	fmt.Println("send...")
 	if err != nil {
 		fmt.Println(err)

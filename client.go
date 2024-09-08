@@ -32,7 +32,10 @@ func main() {
 	}
 
 	// Send a message to the server
-	_, err = conn.Write([]byte("quick\n"))
+	_, err = conn.Write([]byte(`{
+		"req_type" : "cmd",
+		"data" : "quick"
+	}` + "\r"))
 	fmt.Println("send...")
 	if err != nil {
 		fmt.Println(err)

@@ -7,7 +7,13 @@ import (
 	"net"
 	"os"
 	"strings"
+	"encoding/json"
 )
+
+type Request struct{
+	req_type string
+	data string
+}
 
 func main() {
 	// Write a server that listens on a specified port and greps a file for a given pattern.
@@ -35,18 +41,24 @@ func handleConnection(conn net.Conn) {
 	defer conn.Close()
 	fmt.Println("Accepted connection from", conn.RemoteAddr())
 	for {
-		pattern, err := bufio.NewReader(conn).ReadString('\n')
+		request, err := bufio.NewReader(conn).ReadString('\r')
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-
+		var req Request
+		err := json.Unmarshal(request, &req)
+		if err != nil{
+			fmt.Print(err)
+		}
+		if req.req_type == "cmd" {
 		// Print the data read from the connection to the terminal
-		fmt.Print("> ", string(pattern))
+			fmt.Print("> ", string(pattern))
 
 		// Write back the same message to the client.
-		data, _ := utils.Grep(pattern, "sample.txt")
-		fmt.Print("Sending data to client: ", strings.Join(data, ""))
-		utils.ReturnOutput(conn.RemoteAddr().(*net.TCPAddr).IP.String(), strings.Join(data, "\n"))
+			data, _ := utils.Grep(pattern, "sample.txt")
+			fmt.Print("Sending data to client: ", strings.Join(data, ""))
+			utils.ReturnOutput(conn.RemoteAddr().(*net.TCPAddr).IP.String(), strings.Join(data, "\n"))
+		}
 	}
 }
