@@ -6,6 +6,8 @@ package utils
 import (
 	"bufio"
 	"fmt"
+	"net"
+	"os"
 	"os/exec"
 )
 
@@ -42,4 +44,30 @@ func Grep(pattern, filename string) ([]string, error) {
 	}
 
 	return lines, nil
+}
+
+func ReturnOutput(ip string, data string) {
+	tcpAddr, err := net.ResolveTCPAddr("tcp4", ip+":1200")
+
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	// Connect to the address with tcp
+	conn, err := net.DialTCP("tcp", nil, tcpAddr)
+	fmt.Printf("Sending to %s\n", tcpAddr)
+
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	// Send a message to the server
+	_, err = conn.Write([]byte(data + "\n"))
+	fmt.Println("send...")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
