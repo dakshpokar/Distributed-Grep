@@ -3,16 +3,16 @@ package main
 import (
 	"MP1/utils"
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"net"
 	"os"
 	"strings"
-	"encoding/json"
 )
 
-type Request struct{
-	req_type string
-	data string
+type Request struct {
+	Req_type string
+	Data     string
 }
 
 func main() {
@@ -47,17 +47,19 @@ func handleConnection(conn net.Conn) {
 			return
 		}
 		var req Request
+		fmt.Print(request)
 		err = json.Unmarshal([]byte(request), &req)
-		if err != nil{
+		if err != nil {
+			fmt.Println("error in json unmarshall")
 			fmt.Print(err)
 		}
 		fmt.Print("> ", req)
-		if req.req_type == "cmd" {
-		// Print the data read from the connection to the terminal
-		// Write back the same message to the client.
-			data, _ := utils.Grep(req.data, "sample.txt")
+		if req.Req_type == "cmd" {
+			// Print the data read from the connection to the terminal
+			// Write back the same message to the client.
+			data, _ := utils.Grep(req.Data, "sample.txt")
 			fmt.Print("Sending data to client: ", strings.Join(data, ""))
-			utils.ReturnOutput(conn.RemoteAddr().(*net.TCPAddr).IP.String(), strings.Join(data, "\n"))
+			utils.ReturnOutput(conn.RemoteAddr().(*net.TCPAddr).IP.String(), strings.Join(data, ""))
 		}
 	}
 }

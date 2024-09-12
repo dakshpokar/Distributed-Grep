@@ -9,11 +9,15 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 func Grep(pattern, filename string) ([]string, error) {
+	pattern = `"` + pattern + `"`
+	pattern = strings.ReplaceAll(pattern, "|", `\|`)
 	cmd := exec.Command("grep", pattern, filename, "-rn")
-
+	// Print cmd structure	
+	fmt.Println(cmd.Path + " " + strings.Join(cmd.Args[1:], " "))
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return nil, fmt.Errorf("Error creating StdoutPipe: %w", err)
@@ -42,7 +46,7 @@ func Grep(pattern, filename string) ([]string, error) {
 			return nil, fmt.Errorf("Error waiting for command: %w", err)
 		}
 	}
-
+	fmt.Println("lines:", lines)
 	return lines, nil
 }
 
@@ -63,12 +67,12 @@ func ReturnOutput(ip string, data string) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-
+	//fmt.Print([]byte(data))
 	// Send a message to the server
 	_, err = conn.Write([]byte(`{
 		"req_type": "op",
-		"data" : ` + data + `
-	}` + "\r"))
+		"data" : "` + data + `"
+	}` + "\n\r"))
 	fmt.Println("send...")
 	if err != nil {
 		fmt.Println(err)

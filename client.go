@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/joho/godotenv"
 	"log"
 	"net"
 	"os"
-
-	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -34,8 +33,8 @@ func main() {
 	// Send a message to the server
 	_, err = conn.Write([]byte(`{
 		"req_type" : "cmd",
-		"data" : "quick"
-	}` + "\r"))
+		"data" : "qui|doz"
+	}` + "\n\r"))
 	fmt.Println("send...")
 	if err != nil {
 		fmt.Println(err)
