@@ -61,5 +61,15 @@ func handleConnection(conn net.Conn) {
 			fmt.Print("Sending data to client: ", strings.Join(data, ""))
 			utils.ReturnOutput(conn.RemoteAddr().(*net.TCPAddr).IP.String(), strings.Join(data, ""))
 		}
+		if req.Req_type == "heartbeat" {
+			data := "Alive\n"
+			_, err := conn.Write([]byte(data))
+			if err != nil {
+				fmt.Println("error in json unmarshall")
+				fmt.Print(err)
+			}
+			fmt.Println("------------- send data: " + data + "----------end data")
+			//utils.ReturnOutput(conn.RemoteAddr().(*net.TCPAddr).IP.String(), data)
+		}
 	}
 }
