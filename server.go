@@ -42,6 +42,7 @@ func handleConnection(conn net.Conn) {
 	fmt.Println("Accepted connection from", conn.RemoteAddr())
 	for {
 		request, err := bufio.NewReader(conn).ReadString('\r')
+		fmt.Print("Received data from client: ", request)
 		if err != nil {
 			fmt.Println(err)
 			return
