@@ -33,7 +33,7 @@ func main() {
 	// Send a message to the server
 	_, err = conn.Write([]byte(`{
 		"req_type" : "cmd",
-		"data" : "[0-9]$"
+		"data" : "qui|do"
 	}` + "\n\r"))
 	fmt.Println("send...")
 	if err != nil {

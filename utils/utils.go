@@ -14,8 +14,8 @@ import (
 
 func Grep(pattern, filename string) ([]string, error) {
 	pattern = `"` + pattern + `"`
-	pattern = strings.ReplaceAll(pattern, "|", `\|`)
-	cmd_ := "grep -rn " + pattern + " " + filename
+	//pattern = strings.ReplaceAll(pattern, "|", `\|`)
+	cmd_ := "grep -Ern " + pattern + " " + filename
 	cmd := exec.Command("sh", "-c", cmd_)
 	//cmd := exec.Command("grep", pattern, filename, "-rn")
 	// Print cmd structure	
