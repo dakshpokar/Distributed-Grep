@@ -1,13 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"bufio"
-	"github.com/joho/godotenv"
+	"fmt"
 	"log"
 	"net"
 	"os"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -43,10 +44,10 @@ func main() {
 	}
 
 }
-func handleHeartbeat(conn net.Conn){
+func handleHeartbeat(conn net.Conn) {
 	isAlive := true
-	for isAlive{
-		_, err = conn.Write([]byte(`{
+	for isAlive {
+		_, err := conn.Write([]byte(`{
 			"req_type" : "heartbeat",
 			"data" : "test"
 		}` + "\n\r"))
@@ -54,18 +55,19 @@ func handleHeartbeat(conn net.Conn){
 		if err != nil {
 			fmt.Print(err)
 		}
-		err := conn.SetReadDeadline(time.Now().Add(2*time.Second))
-		if err != nil{
+		err = conn.SetReadDeadline(time.Now().Add(2 * time.Second))
+		if err != nil {
 			fmt.Println("Read deadline set error")
 			isAlive = false
 			break
 		}
 		request, err := bufio.NewReader(conn).ReadString('\n')
-		if err != nil{
+		if err != nil {
 			if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
 				fmt.Println("Timeout waiting for heartbeat response")
 			} else {
-				fmt.Println("Error reading heartbeat response:", err)						}
+				fmt.Println("Error reading heartbeat response:", err)
+			}
 			isAlive = false
 			break
 		}
