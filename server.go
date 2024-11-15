@@ -1,6 +1,7 @@
 package main
 
 import (
+	"MP1/types"
 	"MP1/utils"
 	"bufio"
 	"encoding/json"
@@ -10,13 +11,8 @@ import (
 	"strings"
 )
 
-type Request struct {
-	Req_type string
-	Data     string
-}
-
 func main() {
-	// Write a server that listens on a specified port and greps a file for a given pattern.
+
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", ":1200")
 	listener, err := net.ListenTCP("tcp", tcpAddr)
 	fmt.Printf("Listening on %s\n", tcpAddr)
@@ -37,30 +33,34 @@ func main() {
 	}
 }
 
+/*
+ * handleConnection: Handle incoming connections
+ *
+ * args:
+ * 	{conn} net.Conn: Connection object
+ *
+ * returns:
+ * 	{nil}
+ */
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
 	fmt.Println("Accepted connection from", conn.RemoteAddr())
 	for {
 		request, err := bufio.NewReader(conn).ReadString('\r')
-		fmt.Print("Received data from client: ", request)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		var req Request
-		fmt.Print(request)
+		var req types.Request
 		err = json.Unmarshal([]byte(request), &req)
 		if err != nil {
 			fmt.Println("error in json unmarshall")
 			fmt.Print(err)
 		}
-		fmt.Print("> ", req)
 		if req.Req_type == "cmd" {
-			// Print the data read from the connection to the terminal
-			// Write back the same message to the client.
-			data, _ := utils.Grep(req.Data, "sample.txt")
-			fmt.Print("Sending data to client: ", strings.Join(data, ""))
-			utils.ReturnOutput(conn.RemoteAddr().(*net.TCPAddr).IP.String(), strings.Join(data, ""))
+			data, _ := utils.Grep(req.Data, req.File)
+			joinedString := strings.Join(data, "\\n")
+			utils.ReturnOutput(conn, joinedString)
 		}
 		if req.Req_type == "heartbeat" {
 			data := "Alive\n"
@@ -69,8 +69,6 @@ func handleConnection(conn net.Conn) {
 				fmt.Println("error in json unmarshall")
 				fmt.Print(err)
 			}
-			fmt.Println("------------- send data: " + data + "----------end data")
-			//utils.ReturnOutput(conn.RemoteAddr().(*net.TCPAddr).IP.String(), data)
 		}
 	}
 }

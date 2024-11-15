@@ -9,17 +9,13 @@ import (
 	"net"
 	"os"
 	"os/exec"
-	"strings"
+	"strconv"
 )
 
 func Grep(pattern, filename string) ([]string, error) {
 	pattern = `"` + pattern + `"`
-	//pattern = strings.ReplaceAll(pattern, "|", `\|`)
 	cmd_ := "grep -Ern " + pattern + " " + filename
 	cmd := exec.Command("sh", "-c", cmd_)
-	//cmd := exec.Command("grep", pattern, filename, "-rn")
-	// Print cmd structure	
-	fmt.Println(cmd.Path + " " + strings.Join(cmd.Args[1:], " "))
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return nil, fmt.Errorf("Error creating StdoutPipe: %w", err)
@@ -36,7 +32,8 @@ func Grep(pattern, filename string) ([]string, error) {
 		line := scanner.Text()
 		lines = append(lines, line)
 	}
-
+	count := strconv.Itoa(len(lines))
+	lines = append(lines, count)
 	err = cmd.Wait()
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
@@ -48,34 +45,35 @@ func Grep(pattern, filename string) ([]string, error) {
 			return nil, fmt.Errorf("Error waiting for command: %w", err)
 		}
 	}
-	fmt.Println("lines:", lines)
-	return lines, nil
+	WriteOutputToFile(lines, pattern)
+	return []string{count}, nil
 }
 
-func ReturnOutput(ip string, data string) {
-
-	tcpAddr, err := net.ResolveTCPAddr("tcp4", ip+":1200")
-
+func WriteOutputToFile(lines []string, pattern string) {
+	filenm := "output_" + pattern + ".txt"
+	file, err := os.Create(filenm)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		fmt.Println("Error creating file:", err)
+		return
 	}
+	defer file.Close()
 
-	// Connect to the address with tcp
-	conn, err := net.DialTCP("tcp", nil, tcpAddr)
-	fmt.Printf("Sending to %s\n", tcpAddr)
-
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	for _, line := range lines {
+		_, err := fmt.Fprintln(file, line)
+		if err != nil {
+			fmt.Println("Error writing to file:", err)
+			return
+		}
 	}
-	//fmt.Print([]byte(data))
-	// Send a message to the server
-	_, err = conn.Write([]byte(`{
+	return
+
+}
+
+func ReturnOutput(conn net.Conn, data string) {
+	_, err := conn.Write([]byte(`{
 		"req_type": "op",
 		"data" : "` + data + `"
 	}` + "\n\r"))
-	fmt.Println("send...")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
